@@ -1,4 +1,9 @@
 import json
+import importlib
+import subprocess
+import sys
+import uuid
+
 
 data = {"name": "SS", "prime_candidate": True}
 
@@ -20,10 +25,12 @@ def stringify(kind):
 
 def format(assignment):
     data1 = stringify(assignment.type)
-    return data1 + "," + str(assignment.p) + "," + str(assignment.limit)
+    data2=str(assignment.p) + "," + str(assignment.limit)
+    return data1+(str(uuid.uuid5(uuid.NAMESPACE_DNS, data2)).replace("-", "")).upper()+","+data2
+
 
 def formatcores(cpu_num, work):
     data = ""
     for x in range(1, cpu_num + 1):
         data += f"Worker {x} doing assignment {work[x]}\n"
-    return data
+
