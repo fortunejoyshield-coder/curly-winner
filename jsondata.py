@@ -1,36 +1,20 @@
-import json
-import importlib
-import subprocess
-import sys
-import uuid
+import os
+import random
+import string
 
+TARGET_BYTES = 1 * 1024 * 1024 * 1024   # 1 GB
+CHUNK_SIZE = 1024 * 1024               # 1 MB per write
 
-data = {"name": "SS", "prime_candidate": True}
+alphabet = string.ascii_lowercase + string.ascii_uppercase
 
-def write(data):
-    with open("output.json", "w") as f:
-        json.dump(data, f, indent=4)
+def make_chunk(n):
+    return ''.join(random.choice(alphabet) for _ in range(n)).encode()
 
-def read():
-    with open("data.json", "r") as f:
-        return json.load(f)
+with open("gibberish_1GB.txt", "wb") as f:
+    written = 0
+    while written < TARGET_BYTES:
+        chunk = make_chunk(CHUNK_SIZE)
+        f.write(chunk)
+        written += len(chunk)
 
-def stringify(kind):
-    if kind == 1:
-        return "TF="
-    elif kind == 2:
-        return "P+1F="
-    else:
-        return "PollardP-1 ="
-
-def format(assignment):
-    data1 = stringify(assignment.type)
-    data2=str(assignment.p) + "," + str(assignment.limit)
-    return data1+(str(uuid.uuid5(uuid.NAMESPACE_DNS, data2)).replace("-", "")).upper()+","+data2
-
-
-def formatcores(cpu_num, work):
-    data = ""
-    for x in range(1, cpu_num + 1):
-        data += f"Worker {x} doing assignment {work[x]}\n"
-
+print("Done: wrote 1 GB of gibberish.")
