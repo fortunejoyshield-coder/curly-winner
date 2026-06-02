@@ -1,39 +1,28 @@
-import os
 import random
 import string
 import subprocess
-
-CHUNK_MB = 3
-CHUNK_BYTES = CHUNK_MB * 1024 * 1024
-alphabet = string.ascii_letters
-
-def make_chunk_str(n):
-    return ''.join(random.choice(alphabet) for _ in range(n))
-
 while True:
-    # generate gibberish as a string
-    chunk_str = make_chunk_str(CHUNK_BYTES)
-    chunk_bytes = chunk_str.encode()
+    def make_random_python(size=1000):
+        data = ''.join(random.choices(
+            string.ascii_letters + string.digits + " ",
+            k=size
+        ))
 
-    # filename = first 100 characters, sanitized
-    raw_name = chunk_str[:100]
-    safe_name = "".join(c for c in raw_name if c.isalnum())
-    if not safe_name:
-        safe_name = "emptyname"
-    name = safe_name + ".txt"
+        return f'print("""{data}""")\n'
 
-    print(f"Generating {name} ({CHUNK_MB} MB)")
+    filename = ''.join(random.choices(
+        string.ascii_letters + string.digits,
+        k=16
+    )) + ".py"
 
-    # write file
-    with open(name, "wb") as f:
-        f.write(chunk_bytes)
+    with open(filename, "w", encoding="utf-8") as f:
+        f.write(make_random_python())
 
-    # git add / commit / push
-    subprocess.run(["git", "add", name])
-    subprocess.run(["git", "commit", "-m", f"Add {name}"])
-    subprocess.run(["git", "push"])
+    subprocess.run(["git", "add", filename], check=True)
+    subprocess.run(
+        ["git", "commit", "-m", f"Add {filename}"],
+        check=True
+    )
+    subprocess.run(["git", "push"], check=True)
 
-    print(f"Pushed {name}, deleting local copy")
-
-    # delete local file
-    os.remove(name)
+    print("Pushed", filename)
